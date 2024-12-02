@@ -31,6 +31,6 @@ in
       ${config.out}/user/Library/LaunchAgents/org.nixos.aerospace.plist`
 
     echo >&2 "checking config in $conf"
-    if [ `cat $conf | wc -l` -eq "27" ]; then echo "aerospace.toml config correctly contains 27 lines"; else return 1; fi
+    if [ `cat $conf | wc -l` -eq "29" ]; then echo "aerospace.toml config correctly contains 29 lines"; else return 1; fi
   '';
 }
