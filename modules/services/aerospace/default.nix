@@ -67,11 +67,12 @@ in {
               description = "Default orientation for the root container.";
             };
             on-window-detected = lib.mkOption {
-              type = listOf (attrsOf (oneOf [
-                bool
-                str
-                attrs
-              ]));
+              type = types.listOf (types.attrsOf types.anything);
+              # type = listOf (attrsOf (oneOf [
+              #   bool
+              #   str
+              #   attrs
+              # ]));
               default = [];
               example = [
                 {
