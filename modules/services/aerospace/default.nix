@@ -3,21 +3,17 @@
   lib,
   pkgs,
   ...
-}:
-
-let
+}: let
   cfg = config.services.aerospace;
 
-  format = pkgs.formats.toml { };
+  format = pkgs.formats.toml {};
   configFile = format.generate "aerospace.toml" cfg.settings;
-in
-
-{
+in {
   options = {
     services.aerospace = with lib.types; {
       enable = lib.mkEnableOption "AeroSpace window manager";
 
-      package = lib.mkPackageOption pkgs "aerospace" { };
+      package = lib.mkPackageOption pkgs "aerospace" {};
 
       settings = lib.mkOption {
         type = submodule {
@@ -30,12 +26,12 @@ in
             };
             after-login-command = lib.mkOption {
               type = listOf str;
-              default = [ ];
+              default = [];
               description = "Do not use AeroSpace to run commands after login. (Managed by launchd instead)";
             };
             after-startup-command = lib.mkOption {
               type = listOf str;
-              default = [ ];
+              default = [];
               description = "Do not use AeroSpace to run commands after startup. (Managed by launchd instead)";
             };
             enable-normalization-flatten-containers = lib.mkOption {
@@ -71,23 +67,35 @@ in
               description = "Default orientation for the root container.";
             };
             on-window-detected = lib.mkOption {
-              type = listOf str;
-              default = [ ];
+              type = listOf (attrsOf (oneOf [
+                bool
+                str
+                attrs
+              ]));
+              default = [];
+              example = [
+                {
+                  "if".app-id = "Another.Cool.App";
+                  "if".during-aerospace-startup = false;
+                  "check-further-callbacks" = false;
+                  "run" = "move-node-to-workspace m";
+                }
+              ];
               description = "Commands to run every time a new window is detected.";
             };
             on-focus-changed = lib.mkOption {
               type = listOf str;
-              default = [ ];
+              default = [];
               description = "Commands to run every time focused window or workspace changes.";
             };
             on-focused-monitor-changed = lib.mkOption {
               type = listOf str;
-              default = [ "move-mouse monitor-lazy-center" ];
+              default = ["move-mouse monitor-lazy-center"];
               description = "Commands to run every time focused monitor changes.";
             };
             exec-on-workspace-change = lib.mkOption {
               type = listOf str;
-              default = [ ];
+              default = [];
               example = [
                 "/bin/bash"
                 "-c"
@@ -105,7 +113,7 @@ in
             };
           };
         };
-        default = { };
+        default = {};
         example = lib.literalExpression ''
           {
             gaps = {
@@ -139,20 +147,20 @@ in
           message = "AeroSpace started at login is managed by home-manager and launchd instead of itself via this option.";
         }
         {
-          assertion = cfg.settings.after-login-command == [ ];
+          assertion = cfg.settings.after-login-command == [];
           message = "AeroSpace will not run these commands as it does not start itself.";
         }
         {
-          assertion = cfg.settings.after-startup-command == [ ];
+          assertion = cfg.settings.after-startup-command == [];
           message = "AeroSpace will not run these commands as it does not start itself.";
         }
       ];
-      environment.systemPackages = [ cfg.package ];
+      environment.systemPackages = [cfg.package];
 
       launchd.user.agents.aerospace = {
         command =
           "${cfg.package}/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
-          + (lib.optionalString (cfg.settings != { }) " --config-path ${configFile}");
+          + (lib.optionalString (cfg.settings != {}) " --config-path ${configFile}");
         serviceConfig = {
           KeepAlive = true;
           RunAtLoad = true;
