@@ -68,11 +68,6 @@ in {
             };
             on-window-detected = lib.mkOption {
               type = types.listOf (types.attrsOf types.anything);
-              # type = listOf (attrsOf (oneOf [
-              #   bool
-              #   str
-              #   attrs
-              # ]));
               default = [];
               example = [
                 {
@@ -93,6 +88,22 @@ in {
               type = listOf str;
               default = ["move-mouse monitor-lazy-center"];
               description = "Commands to run every time focused monitor changes.";
+            };
+            workspace-to-monitor-force-assignment = lib.mkOption {
+              type = attrsOf (oneOf [int str (listOf str)]);
+              default = {};
+              description = ''
+                Map workspaces to specific monitors.
+                Left-hand side is the workspace name, and right-hand side is the monitor pattern.
+              '';
+              example = {
+                "1" = 1; # First monitor from left to right.
+                "2" = "main"; # Main monitor.
+                "3" = "secondary"; # Secondary monitor (non-main).
+                "4" = "built-in"; # Built-in display.
+                "5" = "^built-in retina display$"; # Regex for the built-in retina display.
+                "6" = ["secondary" "dell"]; # Match first pattern in the list.
+              };
             };
             exec-on-workspace-change = lib.mkOption {
               type = listOf str;
