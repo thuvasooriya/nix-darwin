@@ -1,14 +1,14 @@
-{ config, pkgs, ... }:
-
-let
-  aerospace = pkgs.runCommand "aerospace-0.0.0" { } "mkdir $out";
-in
-
 {
+  config,
+  pkgs,
+  ...
+}: let
+  aerospace = pkgs.runCommand "aerospace-0.0.0" {} "mkdir $out";
+in {
   services.aerospace.enable = true;
   services.aerospace.package = aerospace;
   services.aerospace.settings = {
-    after-startup-command = [ "layout tiles" ];
+    after-startup-command = ["layout tiles"];
     gaps = {
       outer.left = 8;
       outer.bottom = 8;
@@ -34,12 +34,12 @@ in
       }
     ];
     workspace-to-monitor-force-assignment = {
-        "1" = 1;
-        "2" = "main";
-        "3" = "secondary";
-        "4" = "built-in";
-        "5" = "^built-in retina display$";
-        "6" = [ "secondary" "dell" ];
+      "1" = 1;
+      "2" = "main";
+      "3" = "secondary";
+      "4" = "built-in";
+      "5" = "^built-in retina display$";
+      "6" = ["secondary" "dell"];
     };
   };
 
