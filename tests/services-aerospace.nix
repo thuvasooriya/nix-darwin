@@ -8,6 +8,7 @@ in
   services.aerospace.enable = true;
   services.aerospace.package = aerospace;
   services.aerospace.settings = {
+    after-startup-command = [ "layout tiles" ];
     gaps = {
       outer.left = 8;
       outer.bottom = 8;
@@ -20,6 +21,26 @@ in
       alt-k = "focus up";
       alt-l = "focus right";
     };
+    on-window-detected = [
+      {
+        "if".app-id = "Another.Cool.App";
+        "if".during-aerospace-startup = false;
+        "check-further-callbacks" = false;
+        "run" = "move-node-to-workspace m";
+      }
+      {
+        "if".app-name-regex-substring = "finder|calendar";
+        "run" = "layout floating";
+      }
+    ];
+    workspace-to-monitor-force-assignment = {
+        "1" = 1;
+        "2" = "main";
+        "3" = "secondary";
+        "4" = "built-in";
+        "5" = "^built-in retina display$";
+        "6" = [ "secondary" "dell" ];
+    };
   };
 
   test = ''
@@ -31,6 +52,31 @@ in
       ${config.out}/user/Library/LaunchAgents/org.nixos.aerospace.plist`
 
     echo >&2 "checking config in $conf"
-    if [ `cat $conf | wc -l` -eq "29" ]; then echo "aerospace.toml config correctly contains 29 lines"; else return 1; fi
+    grep 'after-startup-command = \["layout tiles"\]' $conf
+
+    grep 'bottom = 8' $conf
+    grep 'left = 8' $conf
+    grep 'right = 8' $conf
+    grep 'top = 8' $conf
+
+    grep 'alt-h = "focus left"' $conf
+    grep 'alt-j = "focus down"' $conf
+    grep 'alt-k = "focus up"' $conf
+    grep 'alt-l = "focus right"' $conf
+
+    grep 'check-further-callbacks = false' $conf
+    grep 'run = "move-node-to-workspace m"' $conf
+    grep 'app-id = "Another.Cool.App"' $conf
+    grep 'during-aerospace-startup = false' $conf
+
+    grep 'run = "layout floating"' $conf
+    grep 'app-name-regex-substring = "finder|calendar"' $conf
+
+    grep '1 = 1' $conf
+    grep '2 = "main"' $conf
+    grep '3 = "secondary"' $conf
+    grep '4 = "built-in"' $conf
+    grep '5 = "^built-in retina display$"' $conf
+    grep '6 = \["secondary", "dell"\]' $conf
   '';
 }

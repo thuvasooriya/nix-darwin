@@ -36,7 +36,8 @@ in
             after-startup-command = lib.mkOption {
               type = listOf str;
               default = [ ];
-              description = "Do not use AeroSpace to run commands after startup. (Managed by launchd instead)";
+              description = "Add commands that run after AeroSpace startup";
+              example = [ "layout tiles" ];
             };
             enable-normalization-flatten-containers = lib.mkOption {
               type = bool;
@@ -72,7 +73,7 @@ in
             };
             on-window-detected = lib.mkOption {
               type = types.listOf (types.attrsOf types.anything);
-              default = [];
+              default = [ ];
               example = [
                 {
                   "if".app-id = "Another.Cool.App";
@@ -80,12 +81,16 @@ in
                   "check-further-callbacks" = false;
                   "run" = "move-node-to-workspace m";
                 }
+                {
+                  "if".app-name-regex-substring = "finder|calendar";
+                  "run" = "layout floating";
+                }
               ];
-              description = "Commands to run every time a new window is detected.";
+              description = "Commands to run every time a new window is detected with optional conditions.";
             };
             workspace-to-monitor-force-assignment = lib.mkOption {
-              type = attrsOf (oneOf [int str (listOf str)]);
-              default = {};
+              type = attrsOf (oneOf [ int str (listOf str) ]);
+              default = { };
               description = ''
                 Map workspaces to specific monitors.
                 Left-hand side is the workspace name, and right-hand side is the monitor pattern.
@@ -96,7 +101,7 @@ in
                 "3" = "secondary"; # Secondary monitor (non-main).
                 "4" = "built-in"; # Built-in display.
                 "5" = "^built-in retina display$"; # Regex for the built-in retina display.
-                "6" = ["secondary" "dell"]; # Match first pattern in the list.
+                "6" = [ "secondary" "dell" ]; # Match first pattern in the list.
               };
             };
             on-focus-changed = lib.mkOption {
@@ -164,10 +169,6 @@ in
         }
         {
           assertion = cfg.settings.after-login-command == [ ];
-          message = "AeroSpace will not run these commands as it does not start itself.";
-        }
-        {
-          assertion = cfg.settings.after-startup-command == [ ];
           message = "AeroSpace will not run these commands as it does not start itself.";
         }
       ];
