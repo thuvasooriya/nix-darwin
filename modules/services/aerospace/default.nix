@@ -109,7 +109,7 @@ in
                   };
                   check-further-callbacks = lib.mkOption {
                     type = bool;
-                    default = false;
+                    default = true;
                     description = "Whether to check further callbacks after this rule (optional).";
                   };
                   run = lib.mkOption {
