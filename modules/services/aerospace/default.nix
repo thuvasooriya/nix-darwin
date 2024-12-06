@@ -9,7 +9,31 @@ let
   cfg = config.services.aerospace;
 
   format = pkgs.formats.toml { };
-  configFile = format.generate "aerospace.toml" cfg.settings;
+  filterAttrsRecursive =
+    pred: set:
+    lib.listToAttrs (
+      lib.concatMap (
+        name:
+        let
+          v = set.${name};
+        in
+        if pred v then
+          [
+            (lib.nameValuePair name (
+              if lib.isAttrs v then
+                filterAttrsRecursive pred v
+              else if lib.isList v then
+                (map (i: if lib.isAttrs i then filterAttrsRecursive pred i else i) (lib.filter pred v))
+              else
+                v
+            ))
+          ]
+        else
+          [ ]
+      ) (lib.attrNames set)
+    );
+  filterNulls = filterAttrsRecursive (v: v != null);
+  configFile = format.generate "aerospace.toml" (filterNulls cfg.settings);
 in
 
 {
@@ -78,28 +102,28 @@ in
                     type = submodule {
                       options = {
                         app-id = lib.mkOption {
-                          type = str;
-                          default = "";
+                          type = nullOr str;
+                          default = null;
                           description = "The application ID to match (optional).";
                         };
                         workspace = lib.mkOption {
-                          type = oneOf [ ints.unsigned str ];
-                          default = "";
+                          type = nullOr str;
+                          default = null;
                           description = "The workspace name to match (optional).";
                         };
                         window-title-regex-substring = lib.mkOption {
-                          type = str;
-                          default = "";
+                          type = nullOr str;
+                          default = null;
                           description = "Substring to match in the window title (optional).";
                         };
                         app-name-regex-substring = lib.mkOption {
-                          type = str;
-                          default = "";
+                          type = nullOr str;
+                          default = null;
                           description = "Regex substring to match the app name (optional).";
                         };
                         during-aerospace-startup = lib.mkOption {
-                          type = bool;
-                          default = false;
+                          type = nullOr bool;
+                          default = null;
                         description = "Whether to match during aerospace startup (optional).";
                         };
                       };
@@ -108,8 +132,8 @@ in
                     description = "Conditions for detecting a window.";
                   };
                   check-further-callbacks = lib.mkOption {
-                    type = bool;
-                    default = true;
+                    type = nullOr bool;
+                    default = null;
                     description = "Whether to check further callbacks after this rule (optional).";
                   };
                   run = lib.mkOption {
