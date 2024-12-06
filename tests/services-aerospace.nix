@@ -23,14 +23,16 @@ in
     };
     on-window-detected = [
       {
-        "if".app-id = "Another.Cool.App";
-        "if".during-aerospace-startup = false;
-        "check-further-callbacks" = false;
-        "run" = "move-node-to-workspace m";
+        "if" = {
+          app-id = "Another.Cool.App";
+          during-aerospace-startup = false;
+        };
+        check-further-callbacks = false;
+        run = "move-node-to-workspace m";
       }
       {
         "if".app-name-regex-substring = "finder|calendar";
-        "run" = "layout floating";
+        run = "layout floating";
       }
     ];
     workspace-to-monitor-force-assignment = {

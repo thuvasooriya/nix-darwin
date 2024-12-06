@@ -72,18 +72,65 @@ in
               description = "Default orientation for the root container.";
             };
             on-window-detected = lib.mkOption {
-              type = types.listOf (types.attrsOf types.anything);
+              type = listOf (submodule {
+                options = {
+                  "if" = lib.mkOption {
+                    type = submodule {
+                      options = {
+                        app-id = lib.mkOption {
+                          type = str;
+                          default = "";
+                          description = "The application ID to match (optional).";
+                        };
+                        workspace = lib.mkOption {
+                          type = oneOf [ ints.unsigned str ];
+                          default = "";
+                          description = "The workspace name to match (optional).";
+                        };
+                        window-title-regex-substring = lib.mkOption {
+                          type = str;
+                          default = "";
+                          description = "Substring to match in the window title (optional).";
+                        };
+                        app-name-regex-substring = lib.mkOption {
+                          type = str;
+                          default = "";
+                          description = "Regex substring to match the app name (optional).";
+                        };
+                        during-aerospace-startup = lib.mkOption {
+                          type = bool;
+                          default = false;
+                        description = "Whether to match during aerospace startup (optional).";
+                        };
+                      };
+                    };
+                    default = { };
+                    description = "Conditions for detecting a window.";
+                  };
+                  check-further-callbacks = lib.mkOption {
+                    type = bool;
+                    default = false;
+                    description = "Whether to check further callbacks after this rule (optional).";
+                  };
+                  run = lib.mkOption {
+                    type = oneOf [ str (listOf str) ];
+                    example = [ "move-node-to-workspace m" "resize-node" ];
+                    description = "Commands to execute when the conditions match (required).";
+                  };
+                };
+              });
               default = [ ];
               example = [
                 {
-                  "if".app-id = "Another.Cool.App";
-                  "if".during-aerospace-startup = false;
-                  "check-further-callbacks" = false;
-                  "run" = "move-node-to-workspace m";
-                }
-                {
-                  "if".app-name-regex-substring = "finder|calendar";
-                  "run" = "layout floating";
+                  "if" = {
+                    app-id = "Another.Cool.App";
+                    workspace = "cool-workspace";
+                    window-title-regex-substring = "Title";
+                    app-name-regex-substring = "CoolApp";
+                    during-aerospace-startup = false;
+                  };
+                  check-further-callbacks = false;
+                  run = [ "move-node-to-workspace m" "resize-node" ];
                 }
               ];
               description = "Commands to run every time a new window is detected with optional conditions.";
